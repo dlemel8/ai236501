@@ -12,15 +12,14 @@ import math
 random.seed(time.clock())
 def generate_elms(width, height, prevent_list, num_to_create):
     res = []
-    i = 0
+    i = random.randint(0, height - 1)
     while num_to_create > 0:
         n = random.randint(0, width - 1)
-        while (n,i) in prevent_list:
+        while (n,i) in (prevent_list + res):
             n = random.randint(0, width - 1)
         res.append((n,i))
         num_to_create -= 1
-        i = (i + 1) % height   
-                
+        i = (i + random.randint(1, height - 1)) % height                   
     return res
 
 def generate_eazy_board(width, height, robots_num):
@@ -44,6 +43,6 @@ def generate_hard_board(width, height, robots_num):
     return mrs
 
 
-print generate_eazy_board(10, 10, 2)
-print generate_medium_board(10, 10, 2)
-print generate_hard_board(10, 10, 2)
+print generate_eazy_board(20, 10, 2)
+print generate_medium_board(20, 10, 2)
+print generate_hard_board(20, 10, 2)
