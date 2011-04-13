@@ -12,14 +12,15 @@ import math
 random.seed(time.clock())
 def generate_elms(width, height, prevent_list, num_to_create):
     res = []
-    i = random.randint(0, height - 1)
+    i = 0
     while num_to_create > 0:
         n = random.randint(0, width - 1)
-        while (n,i) in (prevent_list + res):
+        while (n,i) in prevent_list:
             n = random.randint(0, width - 1)
         res.append((n,i))
         num_to_create -= 1
-        i = (i + random.randint(1, height - 1)) % height                   
+        i = (i + 1) % height   
+                
     return res
 
 def generate_eazy_board(width, height, robots_num):
@@ -41,8 +42,3 @@ def generate_hard_board(width, height, robots_num):
     robots = generate_elms(width, height, dirts + obstacles, robots_num)
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs
-
-
-print generate_eazy_board(20, 10, 2)
-print generate_medium_board(20, 10, 2)
-print generate_hard_board(20, 10, 2)
