@@ -15,7 +15,7 @@ class CleanHeuristic(Heuristic):
         return len(state.dirt_locations)
 
 if __name__ == '__main__': 
-    problem = boards.generate_eazy_board(10, 10, 2)
+    problem = boards.generate_hard_board(10, 10, 2)
     print problem
     
     agent = TestAgent()
