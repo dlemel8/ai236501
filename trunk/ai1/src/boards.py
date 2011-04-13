@@ -32,7 +32,7 @@ def generate_eazy_board(width, height, robots_num):
 def generate_medium_board(width, height, robots_num):
     obstacles = frozenset(generate_elms(width, height, [], height))
     dirts = frozenset(generate_elms(width, height, obstacles, height))
-    robots = tuple(generate_elms(width, height, dirts + obstacles, robots_num))
+    robots = tuple(generate_elms(width, height, dirts | obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs
 
