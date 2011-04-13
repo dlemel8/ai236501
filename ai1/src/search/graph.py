@@ -156,6 +156,9 @@ class GraphSearch (SearchAlgorithm):
                 return node.getPathActions()
             
             if (node.state not in closed_states) or (node.path_cost < closed_states[node.state]):
+                if self.__class__.__name__ != "BreadthFirstGraphSearch":
+                    print node.state
+                    #bdio = 1
                 closed_states[node.state] = node.path_cost
                 open_states.extend(node.expand())
                 

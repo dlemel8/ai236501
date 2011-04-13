@@ -6,10 +6,8 @@ Created on Apr 10, 2011
 
 import multi_robot_problem
 import random
-import time
 import math
 
-random.seed(time.clock())
 def generate_elms(width, height, prevent_list, num_to_create):
     res = []
     i = 0
@@ -23,7 +21,7 @@ def generate_elms(width, height, prevent_list, num_to_create):
                 
     return res
 
-def generate_eazy_board(width, height, robots_num):
+def generate_easy_board(width, height, robots_num):
     dirts = frozenset(generate_elms(width, height, [], height))
     robots = tuple(generate_elms(width, height, dirts, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, frozenset([]))
@@ -41,4 +39,11 @@ def generate_hard_board(width, height, robots_num):
     dirts = frozenset(generate_elms(width, height, obstacles, height))
     robots = tuple(generate_elms(width, height, dirts | obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
+    return mrs
+
+def generate_debug_board():
+    dirts = frozenset([(4,2)])
+    obstacles = frozenset([(1,3),(2,3),(3,3),(4,3)])
+    robots = tuple([(3,4)])
+    mrs = multi_robot_problem.MultiRobotState(5, 5, robots, dirts, obstacles)
     return mrs
