@@ -1,24 +1,18 @@
 from problem_agent import ProblemAgent
-from search.algorithm import Heuristic
 from search.best_first import BestFirstGraphSearch
-import boards
+from heuristics import *
+from boards import *
 import time
 
-
-class TestAgent(ProblemAgent):
+class RobotsAgent(ProblemAgent):
     def solve(self, problem_state, time_limit):
         return BestFirstGraphSearch().find(problem_state, CleanHeuristic())
 
-
-class CleanHeuristic(Heuristic):
-    def evaluate(self, state):
-        return len(state.dirt_locations)
-
 if __name__ == '__main__': 
-    problem = boards.generate_hard_board(10, 10, 2)
+    problem = generate_medium_board(10, 10, 2)
     print problem
     
-    agent = TestAgent()
+    agent = RobotsAgent()
     start = time.clock()
     solution = agent.solve(problem, 17)
     run_time = time.clock() - start
