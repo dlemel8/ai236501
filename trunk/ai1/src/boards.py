@@ -24,21 +24,21 @@ def generate_elms(width, height, prevent_list, num_to_create):
     return res
 
 def generate_eazy_board(width, height, robots_num):
-    dirts = generate_elms(width, height, [], height)
-    robots = generate_elms(width, height, dirts, robots_num)
-    mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, [])
+    dirts = frozenset(generate_elms(width, height, [], height))
+    robots = tuple(generate_elms(width, height, dirts, robots_num))
+    mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, frozenset([]))
     return mrs
 
 def generate_medium_board(width, height, robots_num):
-    obstacles = generate_elms(width, height, [], height)
-    dirts = generate_elms(width, height, obstacles, height)
-    robots = generate_elms(width, height, dirts + obstacles, robots_num)
+    obstacles = frozenset(generate_elms(width, height, [], height))
+    dirts = frozenset(generate_elms(width, height, obstacles, height))
+    robots = tuple(generate_elms(width, height, dirts + obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs
 
 def generate_hard_board(width, height, robots_num):
-    obstacles = generate_elms(width, height, [], height * math.floor(math.sqrt(width)))
-    dirts = generate_elms(width, height, obstacles, height)
-    robots = generate_elms(width, height, dirts + obstacles, robots_num)
+    obstacles = frozenset(generate_elms(width, height, [], height * math.floor(math.sqrt(width))))
+    dirts = frozenset(generate_elms(width, height, obstacles, height))
+    robots = tuple(generate_elms(width, height, dirts + obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs
