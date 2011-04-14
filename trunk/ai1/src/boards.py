@@ -42,8 +42,8 @@ def generate_hard_board(width, height, robots_num):
     return mrs
 
 def generate_debug_board():
-    dirts = frozenset([(4,2)])
-    obstacles = frozenset([(1,3),(2,3),(3,3),(4,3)])
+    dirts = frozenset([(4,2), (0,1)])
+    obstacles = frozenset([(1,3),(2,3),(3,3)])
     robots = tuple([(3,4)])
     mrs = multi_robot_problem.MultiRobotState(5, 5, robots, dirts, obstacles)
     return mrs

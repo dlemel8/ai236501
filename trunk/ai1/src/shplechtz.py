@@ -5,16 +5,18 @@ from boards import *
 import time
 from search.beam_search import BeamSearch
 
+print_debug = 1
+
 class RobotsAgent(ProblemAgent):
     def solve(self, problem_state, time_limit):
         #return BeamSearch().find(problem_state, CleanHeuristic())
-        #return BeamSearch().find(problem_state, BdioHeuristic())
-        return BeamSearch().find(problem_state, BlaHeuristic())
+        return BeamSearch().find(problem_state, ShortestPathHeuristic())
+        #return BeamSearch().find(problem_state, IgnoreObstaclesHeuristic())
 
 if __name__ == '__main__': 
     random.seed(time.clock())
-    #problem = generate_medium_board(20, 20, 1)
-    problem = generate_debug_board()
+    problem = generate_medium_board(10, 10, 1)
+    #problem = generate_debug_board()
     print problem
     
     agent = RobotsAgent()
