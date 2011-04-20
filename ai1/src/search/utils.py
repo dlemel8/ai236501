@@ -7,6 +7,7 @@ import heapq
 
 # Inifinity should be a really large number...
 infinity = 1.0e400
+time_safty = 0.1
 
 #########################
 ##   Data Structures   ##
