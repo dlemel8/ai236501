@@ -1,6 +1,5 @@
 from search.algorithm import Heuristic
 from search.uninformed import BreadthFirstGraphSearch
-from search.utils import infinity
 from copy import deepcopy
 import sys
 
