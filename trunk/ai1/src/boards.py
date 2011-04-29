@@ -7,8 +7,10 @@ Created on Apr 10, 2011
 import multi_robot_problem
 import random
 import math
+import time
 
 def generate_elms(width, height, prevent_list, num_to_create):
+    random.seed(time.clock())
     res = []
     i = 0
     while num_to_create > 0:
