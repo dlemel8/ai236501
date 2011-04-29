@@ -214,7 +214,10 @@ class GraphSearchAnyTime (SearchAlgorithm):
             
             run_time = time.clock() - self.start_time + time_safty
             
-            if (run_time >= self.max_time) or (node.state.isGoal()): 
+            if run_time >= self.max_time:
+                break
+            
+            if node.state.isGoal(): 
                 return node.getPathActions()
             
             if node.depth > self.max_depth:

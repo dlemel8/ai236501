@@ -9,6 +9,9 @@ import itertools
 def die(str):
     print '[KOL HABASA] ' + str
     sys.exit(0)
+    
+def dist(p1, p2):
+        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
 
 class CleanHeuristic(Heuristic):
     def evaluate(self, state):
@@ -31,9 +34,6 @@ class ShortestPathHeuristic(Heuristic):
         return minVal + state.width * state.height * len(state.dirt_locations)
     
 class AllmostShortestPathHeuristic(Heuristic):
-    def dist(self, p1, p2):
-        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-    
     def find_solution(self, state, dirt, robot):
         realDirts = deepcopy(state.dirt_locations)
         realRobots = deepcopy(state.robots)
@@ -51,7 +51,7 @@ class AllmostShortestPathHeuristic(Heuristic):
     def evaluate(self, state):
         firstMinVal = infinity
         for (dirt, robot) in itertools.product(state.dirt_locations, state.robots):
-            tmpVal = self.dist(dirt, robot)
+            tmpVal = dist(dirt, robot)
             if (tmpVal < firstMinVal):
                 firstMinVal = tmpVal
                 minDirt = dirt
@@ -63,20 +63,29 @@ class AllmostShortestPathHeuristic(Heuristic):
         return minVal + state.width * state.height * len(state.dirt_locations)
 
 class IgnoreObstaclesHeuristic(Heuristic):
-    def dist(self, p1, p2):
-        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-    
     def evaluate(self, state):
         totalMinVal = state.width * state.height * len(state.dirt_locations) * len(state.robots)
         for robot in state.robots:
-            dists = [self.dist(dirt, robot) for dirt in state.dirt_locations]
+            dists = [dist(dirt, robot) for dirt in state.dirt_locations]
+            totalMinVal += reduce(min, dists, state.width * state.height)
+        return totalMinVal
+
+class DirtsDivisionHeuristic(Heuristic):
+    def evaluate(self, state):
+        totalMinVal = state.width * state.height * len(state.dirt_locations) * len(state.robots)
+        dirts = list(deepcopy(state.dirt_locations))
+        dirts.sort()
+        part =  len(dirts) / len(state.robots)
+        rem = len(dirts) % len(state.robots)
+        for r in state.robots:
+            idx = r is state.robots[0] and part+rem or part
+            sub_dirts = dirts[0:idx] 
+            del dirts[0:idx]
+            dists = [dist(dirt, r) for dirt in sub_dirts]
             totalMinVal += reduce(min, dists, state.width * state.height)
         return totalMinVal
     
 class OneDirtPerRobotHeuristic(Heuristic):
-    def dist(self, p1, p2):
-        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-    
     def evaluate(self, state):
         totalMinVal = state.width * state.height * len(state.dirt_locations) * len(state.robots)
         robots = list(deepcopy(state.robots))
@@ -84,20 +93,17 @@ class OneDirtPerRobotHeuristic(Heuristic):
         while len(dirts) and len(robots):
             firstMinVal = infinity
             for (dirt, robot) in itertools.product(dirts, robots):
-                tmpVal = self.dist(dirt, robot)
+                tmpVal = dist(dirt, robot)
                 if (tmpVal < firstMinVal):
                     firstMinVal = tmpVal
                     minDirt = dirt
                     minRobot = robot
             robots.remove(minRobot)
             dirts.remove(minDirt)
-            totalMinVal += self.dist(minDirt, minRobot)
+            totalMinVal += dist(minDirt, minRobot)
         return totalMinVal
     
 class OneDirtPerRobotShortestHeuristic(Heuristic):
-    def dist(self, p1, p2):
-        return abs(p1[0] - p2[0]) + abs(p1[1] - p2[1])
-    
     def find_solution(self, state, dirt, robot):
         realDirts = deepcopy(state.dirt_locations)
         realRobots = deepcopy(state.robots)
@@ -119,7 +125,7 @@ class OneDirtPerRobotShortestHeuristic(Heuristic):
         while len(dirts) and len(robots):
             firstMinVal = infinity
             for (dirt, robot) in itertools.product(dirts, robots):
-                tmpVal = self.dist(dirt, robot)
+                tmpVal = dist(dirt, robot)
                 if (tmpVal < firstMinVal):
                     firstMinVal = tmpVal
                     minDirt = dirt
