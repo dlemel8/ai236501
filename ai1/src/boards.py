@@ -12,33 +12,39 @@ import time
 def generate_elms(width, height, prevent_list, num_to_create):
     random.seed(time.clock())
     res = []
-    i = 0
+    i = random.randint(0, height - 1)
     while num_to_create > 0:
         n = random.randint(0, width - 1)
         while (n,i) in prevent_list:
             n = random.randint(0, width - 1)
         res.append((n,i))
         num_to_create -= 1
-        i = (i + 1) % height   
+        i = (i + random.randint(0, height - 1)) % height   
                 
     return res
 
-def generate_easy_board(width, height, robots_num):
-    dirts = frozenset(generate_elms(width, height, [], height))
+def generate_easy_board(width, height, robots_num, dirt_num=None):
+    if not dirt_num:
+        dirt_num = height
+    dirts = frozenset(generate_elms(width, height, [], dirt_num))
     robots = tuple(generate_elms(width, height, dirts, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, frozenset([]))
     return mrs
 
-def generate_medium_board(width, height, robots_num):
+def generate_medium_board(width, height, robots_num, dirt_num=None):
     obstacles = frozenset(generate_elms(width, height, [], height))
-    dirts = frozenset(generate_elms(width, height, obstacles, height))
+    if not dirt_num:
+        dirt_num = height
+    dirts = frozenset(generate_elms(width, height, obstacles, dirt_num))
     robots = tuple(generate_elms(width, height, dirts | obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs
 
-def generate_hard_board(width, height, robots_num):
+def generate_hard_board(width, height, robots_num, dirt_num=None):
     obstacles = frozenset(generate_elms(width, height, [], height * math.floor(math.sqrt(width))))
-    dirts = frozenset(generate_elms(width, height, obstacles, height))
+    if not dirt_num:
+        dirt_num = height
+    dirts = frozenset(generate_elms(width, height, obstacles, dirt_num))
     robots = tuple(generate_elms(width, height, dirts | obstacles, robots_num))
     mrs = multi_robot_problem.MultiRobotState(width, height, robots, dirts, obstacles)
     return mrs

@@ -6,8 +6,12 @@ from search.utils import infinity
 import sys
 import itertools
 
+from shplechtz import log
+def msg(str, file=log):
+    file.write(str + '\n')
+    
 def die(str):
-    print '[KOL HABASA] ' + str
+    msg('[KOL HABASA] ' + str)
     sys.exit(0)
     
 def dist(p1, p2):
