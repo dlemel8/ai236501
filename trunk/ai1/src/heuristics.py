@@ -31,7 +31,7 @@ class DirtsDivisionHeuristic(Heuristic):
     def evaluate(self, state):
         if not state.dirt_locations:
             return 0
-        if random.random() < 0.2:
+        if random.random() < 0.1:
             return infinity
         if (len(state.dirt_locations) < len(state.robots)):
             return OneDirtPerRobotHeuristic().evaluate(state)  
@@ -53,7 +53,7 @@ class OneDirtPerRobotHeuristic(Heuristic):
     def evaluate(self, state):
         if not state.dirt_locations:
             return 0
-        if random.random() < 0.2:
+        if random.random() < 0.1:
             return infinity 
         init_val = (state.width * state.height) * len(state.dirt_locations)
         totalMinVal = init_val
