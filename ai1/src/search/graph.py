@@ -238,7 +238,7 @@ class GraphSearchAnyTime (SearchAlgorithm):
                     open_states.pop()
                 continue 
             
-            if node.depth > self.max_depth:
+            if node.depth > self.max_depth or node.path_cost >= min_len:
                 continue
             
             if (node.state not in closed_states) or (node.path_cost < closed_states[node.state]):
