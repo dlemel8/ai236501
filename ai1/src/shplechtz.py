@@ -12,7 +12,7 @@ from numpy.numarray.functions import average
 from scipy.stats import wilcoxon
 import numpy as np
 
-print_debug = 0
+print_debug = 1
 log = open('robots.log', 'w')
 
 def create_new_file_name(pattern):
@@ -90,10 +90,9 @@ class RobotsAgent(ProblemAgent):
         start_time = time.clock() 
         sols = []
         algo_to_invoke = 4.0
-        world = problem_state.height * problem_state.width
         for a, h in itertools.product([BeamSearchAnyTime, AStarAnyTime], [OneDirtPerRobotHeuristic, DirtsDivisionHeuristic]):
             time_remain = time_limit - (time.clock() - start_time)
-            sol = a(time_remain, algo_to_invoke).find(problem_state, h())
+            sol = a(time_remain, algo_to_invoke, beam_width = 15).find(problem_state, h())
             if sol:
                 sols.append(sol)
             if time_remain < time_safty:
