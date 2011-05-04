@@ -224,18 +224,10 @@ class GraphSearchAnyTime (SearchAlgorithm):
             if node.state.isGoal():
                 if not min_path:
                     self.max_time /= self.algo_to_invoke
-                current_path = node.getPathActions()
-                print len(current_path) 
+                current_path = node.getPathActions() 
                 if len(current_path) < min_len:
                     min_path = current_path
                     min_len = len(current_path)
-                len_queue = len(open_states)
-                for i in range(len_queue/4):
-                    if (i&0xf) == 0:
-                        run_time = time.clock() - self.start_time + time_safty
-                        if run_time >= self.max_time:
-                            return min_path
-                    open_states.pop()
                 continue 
             
             if node.depth > self.max_depth or node.path_cost >= min_len:
