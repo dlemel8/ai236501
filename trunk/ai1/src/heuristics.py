@@ -7,8 +7,7 @@ import sys
 import itertools
 import random
 
-from shplechtz import log
-def msg(str, file=log):
+def msg(str, file=sys.stdout):
     file.write(str + '\n')
     
 def die(str):
