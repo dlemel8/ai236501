@@ -20,13 +20,14 @@ class BeamSearchAnyTime (SearchAlgorithm):
     at which to stop, if needed.
     '''
 
-    def __init__(self, max_time, beam_width=infinity, max_depth=infinity):
+    def __init__(self, max_time, algo_to_invoke, beam_width=infinity, max_depth=infinity):
         '''
         Constructs the beam search from the beam width. 
         Optionally, a maximum depth may be provided at which to stop looking for
         the goal state.
         '''
         self.start_time = time.clock()
+        self.algo_to_invoke = algo_to_invoke
         self.max_time = max_time
         self.beam_width = beam_width
         self.max_depth = max_depth
@@ -51,5 +52,5 @@ class BeamSearchAnyTime (SearchAlgorithm):
             return LimitedPriorityQueue(evaluator, self.beam_width)
 
         # Use a graph search with a minimum priority queue to conduct the search.
-        search = GraphSearchAnyTime(self.start_time, self.max_time, queue_generator, self.max_depth)
+        search = GraphSearchAnyTime(self.start_time, self.max_time, self.algo_to_invoke, queue_generator, self.max_depth)
         return search.find(problem_state)

@@ -17,6 +17,7 @@
 from algorithm import SearchAlgorithm
 from utils import *
 import time
+import copy
 
 ##########################
 ##   Graph Definition   ##
@@ -177,7 +178,7 @@ class GraphSearchAnyTime (SearchAlgorithm):
     It may also take a maximum depth at which to stop, if needed.
     '''
 
-    def __init__(self, start_time, max_time, container_generator, max_depth=infinity):
+    def __init__(self, start_time, max_time, algo_to_invoke, container_generator, max_depth=infinity):
         '''
         Constructs the graph search with a generator for the container to use
         for handling the open states (states that are in the open list).
@@ -190,6 +191,7 @@ class GraphSearchAnyTime (SearchAlgorithm):
         '''
         self.start_time = start_time
         self.max_time = max_time
+        self.algo_to_invoke = algo_to_invoke
         self.container_generator = container_generator
         self.max_depth = max_depth
 
@@ -207,6 +209,8 @@ class GraphSearchAnyTime (SearchAlgorithm):
         '''
         open_states = self.container_generator()
         closed_states = {}
+        min_len = infinity
+        min_path = None
         
         open_states.append(Node(problem_state))
         while open_states and len(open_states) > 0:
@@ -215,10 +219,24 @@ class GraphSearchAnyTime (SearchAlgorithm):
             run_time = time.clock() - self.start_time + time_safty
             
             if run_time >= self.max_time:
-                break
+                return min_path
             
-            if node.state.isGoal(): 
-                return node.getPathActions()
+            if node.state.isGoal():
+                if not min_path:
+                    self.max_time /= self.algo_to_invoke
+                current_path = node.getPathActions()
+                print len(current_path) 
+                if len(current_path) < min_len:
+                    min_path = current_path
+                    min_len = len(current_path)
+                len_queue = len(open_states)
+                for i in range(len_queue/4):
+                    if (i&0xf) == 0:
+                        run_time = time.clock() - self.start_time + time_safty
+                        if run_time >= self.max_time:
+                            return min_path
+                    open_states.pop()
+                continue 
             
             if node.depth > self.max_depth:
                 continue
@@ -232,4 +250,4 @@ class GraphSearchAnyTime (SearchAlgorithm):
                 closed_states[node.state] = node.path_cost
                 open_states.extend(node.expand())
                 
-        return None
+        return min_path

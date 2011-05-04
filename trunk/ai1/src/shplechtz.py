@@ -32,19 +32,19 @@ def runtime_of_dirts_test():
     prevent_list = list(problem.obstacle_locations) + list(problem.robots)
     msg(str(problem), log)
     msg('GOING TO TEST HEURISTICS WITH A-STAR-ALGORITHM AND ALGORITHMS WITH IGNORE-OBSTACLES-HEURISTIC', log)
-    d = { IgnoreObstaclesHeuristic.__name__:[], DirtsDivisionHeuristic.__name__:[], 
+    d = { OneDirtPerRobotHeuristic.__name__:[], DirtsDivisionHeuristic.__name__:[], 
           BeamSearchAnyTime.__name__:[], AStarAnyTime.__name__:[] }
     for dirt_num in range(3, 100):
         problem.dirt_locations = frozenset(generate_elms(width, height, prevent_list, dirt_num))
-        for h in [IgnoreObstaclesHeuristic, DirtsDivisionHeuristic]:
+        for h in [OneDirtPerRobotHeuristic, DirtsDivisionHeuristic]:
             start = time.clock()
             AStarAnyTime(max_time = 90, max_depth = infinity).find(problem, h())
             runtime = time.clock() - start
             d[h.__name__].append((dirt_num, runtime / dirt_num))
-            if h.__name__ == IgnoreObstaclesHeuristic.__name__:
+            if h.__name__ == OneDirtPerRobotHeuristic.__name__:
                 d[AStarAnyTime.__name__].append((dirt_num, runtime / dirt_num))
         start = time.clock()
-        BeamSearchAnyTime(max_time = 90, max_depth = infinity).find(problem, IgnoreObstaclesHeuristic())
+        BeamSearchAnyTime(max_time = 90, max_depth = infinity).find(problem, OneDirtPerRobotHeuristic())
         runtime = time.clock() - start
         d[BeamSearchAnyTime.__name__].append((dirt_num, runtime / dirt_num))
     msg('runtime_of_dirts_dict = ' + str(d), log)  
@@ -61,21 +61,21 @@ def len_of_robots_test():
     prevent_list = list(problem.obstacle_locations) + list(problem.dirt_locations)
     msg(str(problem), log)
     msg('GOING TO TEST HEURISTICS WITH A-STAR-ALGORITHM AND ALGORITHMS WITH IGNORE-OBSTACLES-HEURISTIC', log)
-    d = { IgnoreObstaclesHeuristic.__name__:[], DirtsDivisionHeuristic.__name__:[], 
+    d = { OneDirtPerRobotHeuristic.__name__:[], DirtsDivisionHeuristic.__name__:[], 
           BeamSearchAnyTime.__name__:[], AStarAnyTime.__name__:[] }
     for robots_num in [1, 2, 3]:
         for i in range(1, 30):
             problem.robots = tuple(generate_elms(width, height, prevent_list, robots_num))
-            for h in [IgnoreObstaclesHeuristic, DirtsDivisionHeuristic]:
+            for h in [OneDirtPerRobotHeuristic, DirtsDivisionHeuristic]:
                 start = time.clock()
                 sol = AStarAnyTime(max_time = 90, max_depth = infinity).find(problem, h())
                 runtime = time.clock() - start
                 sol_len = sol and len(sol) or  width*height
                 d[h.__name__].append((robots_num, sol_len))
-                if h.__name__ == IgnoreObstaclesHeuristic.__name__:
+                if h.__name__ == OneDirtPerRobotHeuristic.__name__:
                     d[AStarAnyTime.__name__].append((robots_num, sol_len))
             start = time.clock()
-            sol = BeamSearchAnyTime(max_time = 90, max_depth = infinity).find(problem, IgnoreObstaclesHeuristic())
+            sol = BeamSearchAnyTime(max_time = 90, max_depth = infinity).find(problem, OneDirtPerRobotHeuristic())
             runtime = time.clock() - start
             sol_len = sol and len(sol) or  width*height
             d[BeamSearchAnyTime.__name__].append((robots_num, sol_len))
@@ -89,15 +89,16 @@ class RobotsAgent(ProblemAgent):
     def solve(self, problem_state, time_limit):
         start_time = time.clock() 
         sols = []
+        algo_to_invoke = 4.0
         world = problem_state.height * problem_state.width
-        for a, h in itertools.product([BeamSearchAnyTime, AStarAnyTime],[IgnoreObstaclesHeuristic, DirtsDivisionHeuristic]):
-            sol = a(time_limit, max_depth=world).find(problem_state, h())
+        for a, h in itertools.product([BeamSearchAnyTime, AStarAnyTime], [OneDirtPerRobotHeuristic, DirtsDivisionHeuristic]):
+            time_remain = time_limit - (time.clock() - start_time)
+            sol = a(time_remain, algo_to_invoke).find(problem_state, h())
             if sol:
                 sols.append(sol)
-                #msg(str(a) + ' ' + str(h) + ' solution len: ' + str(len(sol)), self.log)
-            run_time = time.clock() - start_time
-            if time_limit < run_time - time_safty:
+            if time_remain < time_safty:
                 break
+            algo_to_invoke -= 1.0
         if not sols:
             return 0, None
         else:
@@ -109,17 +110,19 @@ def agent_test():
     #log_name = create_new_file_name('.'.join(['agent', str(date.today()), 'data']))
     log = open(log_name, 'w')
     agent = RobotsAgent(log)
-    problem = generate_medium_board(20, 20, 3)
+    problem = generate_hard_board(20, 20, 3)
     msg(str(problem), log)
     data = []
-    for time_limit in range(1000, 1001):
+    for time_limit in range(10, 51, 15):
         sols = []
-        for run in range(3):
+        for run in range(1):
+            start_solve = time.clock()
             num, solution = agent.solve(problem, time_limit)
+            runtime_solve = time.clock() - start_solve
             if solution:
                 sols.append(len(solution))
                 msg(str(time_limit) + ' ' + str(run) + ' ' + str(num), log)
-        if len(sols) > 1:
+        if len(sols) > 0:
             data.append((time_limit, average(sols)))
     msg('agent_test = ' + str(data), log)
     print 'agent_test done! see results in log. runtime', time.clock() - start
