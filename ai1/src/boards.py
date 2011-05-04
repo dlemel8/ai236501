@@ -41,7 +41,7 @@ def generate_medium_board(width, height, robots_num, dirt_num=None):
     return mrs
 
 def generate_hard_board(width, height, robots_num, dirt_num=None):
-    obstacles = frozenset(generate_elms(width, height, [], height * math.floor(math.sqrt(width))))
+    obstacles = frozenset(generate_elms(width, height, [], height * math.floor(math.sqrt(width)/2.0)))
     if not dirt_num:
         dirt_num = height
     dirts = frozenset(generate_elms(width, height, obstacles, dirt_num))

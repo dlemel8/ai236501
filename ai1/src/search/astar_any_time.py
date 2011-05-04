@@ -23,7 +23,7 @@ class AStarAnyTime (SearchAlgorithm):
     It may also take a maximum depth at which to stop, if needed.
     '''
 
-    def __init__(self, max_time, max_depth=infinity):
+    def __init__(self, max_time, algo_to_invoke, max_depth=infinity, beam_width=infinity):
         '''
         Constructs the A* search.
         Optionally, a maximum depth may be provided at which to stop looking for
@@ -31,6 +31,7 @@ class AStarAnyTime (SearchAlgorithm):
         '''
         self.start_time = time.clock()
         self.max_time = max_time
+        self.algo_to_invoke = algo_to_invoke
         self.max_depth = max_depth
 
     def find(self, problem_state, heuristic):
@@ -53,7 +54,7 @@ class AStarAnyTime (SearchAlgorithm):
             return PriorityQueue(evaluator)
 
         # Use a graph search with a minimum priority queue to conduct the search.
-        search = GraphSearchAnyTime(self.start_time, self.max_time, queue_generator, self.max_depth)
+        search = GraphSearchAnyTime(self.start_time, self.max_time, self.algo_to_invoke, queue_generator, self.max_depth)
         return search.find(problem_state)
 
 class IterativeDeepeningAStar (SearchAlgorithm):
