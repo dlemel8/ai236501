@@ -45,7 +45,7 @@ def runtime_of_dirts_test():
             if h.__name__ == OneDirtPerRobotHeuristic.__name__:
                 d[AStar.__name__].append((dirt_num, runtime / dirt_num))
         start = time.clock()
-        BeamSearch(max_depth = infinity).find(problem, OneDirtPerRobotHeuristic())
+        BeamSearch(max_depth = infinity, beam_width=15).find(problem, OneDirtPerRobotHeuristic())
         runtime = time.clock() - start
         d[BeamSearch.__name__].append((dirt_num, runtime / dirt_num))
     msg('runtime_of_dirts_dict = ' + str(d), log)  
@@ -125,50 +125,6 @@ def agent_test():
             
 
 if __name__ == '__main__':
-    #print wilcoxon(np.random.randn(100), 0.12 + np.random.randn(100))
-    #runtime_of_dirts_test()
-    len_of_robots_test()
-    agent_test()
-    sys.exit(0)
-    
-    
-    problem = generate_medium_board(10, 10, 2)
-    #problem = generate_debug_board()
-    msg(str(problem))
-    
-    agent = RobotsAgent()
-    start = time.clock()
-    solution = agent.solve(problem, 0.1)
-    run_time = time.clock() - start
-    if solution:
-        msg('Solution: ' + str(solution))
-        msg('Solution length: ' + str(len(solution)))
-        msg('Running time: ' + str(run_time))
-    else:
-        msg('Could not find a solution')
-    print 'done! see results in log'
-    #fig = plt.figure()
-    #ax = fig.add_subplot(111)
-    #ax.hist()
-    #plt.show()
-    import matplotlib.mlab as mlab
-    
-    mu, sigma = 5, 1.5
-    x = mu + sigma*np.random.randn(100)
-    
-    # the histogram of the data
-    n, bins, patches = plt.hist(x, 20, normed=1, facecolor='green', alpha=0.75)
-    
-    # add a 'best fit' line
-    y = mlab.normpdf( bins, mu, sigma)
-    l = plt.plot(bins, y, 'r--', linewidth=1)
-    
-    plt.xlabel('Smarts')
-    plt.ylabel('Probability')
-    plt.title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
-    plt.axis([0, 10, 0, 1])
-    plt.grid(True)
-    
-    plt.show()
-
-    
+    runtime_of_dirts_test()
+    #len_of_robots_test()
+    #agent_test()    
