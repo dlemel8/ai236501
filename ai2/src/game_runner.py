@@ -1,4 +1,5 @@
 from time import clock
+from alpha_beta_any_time import msg
 
 class GameRunner():
     '''
@@ -47,8 +48,8 @@ class GameRunner():
             
             state = successors[action]
             
-            print action
-            print state
+            msg([action])
+            msg([state])
         
         return state.getWinner()
  
