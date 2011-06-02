@@ -3,6 +3,7 @@ import time
 from cache import LRU
 INFINITY = 1.0e400
 import sys
+from utils import PriorityQueue
 #log = open("bla.log", "w")
 log = sys.stdout
 
@@ -17,7 +18,7 @@ class AlphaBetaSearchAnyTime:
     search by depth alone and uses an evaluation function (utility).
     '''
     
-    def __init__(self, player, utility):
+    def __init__(self, player, utility, turn_time):
         '''
         Constructor.
         
@@ -28,13 +29,26 @@ class AlphaBetaSearchAnyTime:
         '''
         self.player = player
         self.utility = utility
-        self.cache = LRU(1000000)
+        self.cache = LRU(100000)
+        self.turn_time = turn_time
+        self.cache_time_safty = 0.1
     
     def timeOver(self):
-        if time.clock() >= self.end_time:
+        self.time_left = self.end_time - time.clock()
+        if self.time_left <= 0:
             self.bTimeOver = True
             return True
         return False
+    
+    def getPrioritySucc(self, state):
+        items = state.getSuccessors().items()
+        t = time.clock()
+        if self.end_time - t < 0.1*self.turn_time:
+            return items
+        pq = PriorityQueue(lambda x : -self.utility(x[1]))
+        pq.extend(items)
+        l = [pq.pop() for _ in items] 
+        return l
     
     def search(self, current_state, end_time, max_depth):
         '''
@@ -47,8 +61,9 @@ class AlphaBetaSearchAnyTime:
         self.max_depth = max_depth
         best_action = None
         self.bTimeOver = False
+        self.timeOver()
         
-        for action, state in current_state.getSuccessors().items():
+        for action, state in self.getPrioritySucc(current_state):
             if self.timeOver():
                 return (best_action, best_value)
             value = self.get_value(state, best_value, INFINITY, 1)
@@ -72,14 +87,15 @@ class AlphaBetaSearchAnyTime:
         value_fn = self._getValueFn(successor)
         cache_key = (successor, value_fn)
         value = None
-        if cache_key in self.cache:
+        use_cache = (self.time_left - self.cache_time_safty > 0)
+        if use_cache and cache_key in self.cache:
             cache_value, cache_depth = self.cache[cache_key]
             require_depth = self.max_depth - depth
             if require_depth <= cache_depth:
                 value = cache_value
         if not value:
             value = value_fn(successor, alpha, beta, depth)
-            if not self.bTimeOver:
+            if use_cache and not self.bTimeOver:
                 self.cache[cache_key] = (value, self.max_depth - depth)
         return value
     
@@ -89,7 +105,7 @@ class AlphaBetaSearchAnyTime:
             return self.utility(state)
         
         value = -INFINITY
-        for successor in state.getSuccessors().values():
+        for _, successor in self.getPrioritySucc(state):
             if self.timeOver():
                 return value
             value = max(value, self.get_value(successor, alpha, beta, depth + 1))
@@ -104,7 +120,7 @@ class AlphaBetaSearchAnyTime:
             return self.utility(state)
         
         value = INFINITY
-        for successor in state.getSuccessors().values():
+        for _, successor in self.getPrioritySucc(state):
             if self.timeOver():
                 return value
             value = min(value, self.get_value(successor, alpha, beta, depth + 1))
