@@ -55,6 +55,8 @@ class SuperMultiFlechtziUltraDNEAgentPlusPlus(GameAgent):
         self.alphaBetaAnyTime = AlphaBetaSearchAnyTime(self.player, u, turn_time_limit)
     
     def timeOver(self):
+        if self.bTimeOver:
+            return True
         if time.clock() >= self.end_time:
             self.bTimeOver = True
             return True
@@ -124,8 +126,8 @@ agents = {}
 agents[WHITE] = SuperMultiFlechtziUltraDNEAgentPlusPlus()
 agents[BLACK] = SuperMultiFlechtziUltraDNEAgentPlusPlus()
 
-state = LinesOfActionState(12, 1000)
+state = LinesOfActionState(25, 1000)
 
-winner = GameRunner(state, agents, 10, 1).run()
+winner = GameRunner(state, agents, 1, 1).run()
 msg(['Winner: ', winner])
 print 'done'
