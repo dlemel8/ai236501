@@ -34,6 +34,8 @@ class AlphaBetaSearchAnyTime:
         self.cache_time_safty = 0.1
     
     def timeOver(self):
+        if self.bTimeOver:
+            return True
         self.time_left = self.end_time - time.clock()
         if self.time_left <= 0:
             self.bTimeOver = True
@@ -42,11 +44,13 @@ class AlphaBetaSearchAnyTime:
     
     def getPrioritySucc(self, state):
         items = state.getSuccessors().items()
-        t = time.clock()
-        if self.end_time - t < 0.1*self.turn_time:
+        if self.time_left < 0.1:
             return items
         pq = PriorityQueue(lambda x : -self.utility(x[1]))
-        pq.extend(items)
+        for item in items:
+            pq.append(item)
+            if self.bTimeOver:
+                return items
         l = [pq.pop() for _ in items] 
         return l
     
@@ -61,16 +65,17 @@ class AlphaBetaSearchAnyTime:
         self.max_depth = max_depth
         best_action = None
         self.bTimeOver = False
-        self.timeOver()
+        if self.timeOver():
+        	return (best_action, best_value)
         
         for action, state in self.getPrioritySucc(current_state):
-            if self.timeOver():
-                return (best_action, best_value)
             value = self.get_value(state, best_value, INFINITY, 1)
             #msg([action, value, "depth = ",self.max_depth])
             if value > best_value:
                 best_value = value
                 best_action = action
+            if self.timeOver():
+                return (best_action, best_value)
                     
         return (best_action, best_value)
     
@@ -100,11 +105,13 @@ class AlphaBetaSearchAnyTime:
         return value
     
     def _maxValue(self, state, alpha, beta, depth):
+        value = -INFINITY
+        if self.timeOver():
+            return value
         if self._cutoffTest(state, depth):
             # TODO - think about cache in case of depth == 0
             return self.utility(state)
         
-        value = -INFINITY
         for _, successor in self.getPrioritySucc(state):
             if self.timeOver():
                 return value
@@ -116,10 +123,11 @@ class AlphaBetaSearchAnyTime:
         return value
     
     def _minValue(self, state, alpha, beta, depth):
+        value = INFINITY
+        if self.timeOver():
+            return value
         if self._cutoffTest(state, depth):
             return self.utility(state)
-        
-        value = INFINITY
         for _, successor in self.getPrioritySucc(state):
             if self.timeOver():
                 return value
