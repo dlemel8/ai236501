@@ -7,52 +7,31 @@ Created on May 25, 2011
 from game_runner import GameRunner
 from loa_game import LinesOfActionState, WHITE, BLACK, TIE
 from game_agent import GameAgent
-from alpha_beta import AlphaBetaSearch
 from alpha_beta_any_time import AlphaBetaSearchAnyTime, INFINITY, msg, TimeManager
 import sys
 import random
-import time
+import os
+from datetime import date
 
 def die(objs):
     msg(['[KOL HABASA] '] + str)
     sys.exit(0)
 
-class DummyAgent(GameAgent):
-    def move(self, game_state):
-        succ = game_state.getSuccessors()
-        randIdx = random.randint(0, len(succ) - 1)
-        action = succ.keys()[randIdx]
-        return action
-    
-    def setup(self, player, game_state, turn_time_limit, setup_time_limit):
-        return
-    
-class AlphaBetaAgent(GameAgent):
-    def move(self, game_state):
-        return self.alphaBeta.search(game_state)
-    
-    def setup(self, player, game_state, turn_time_limit, setup_time_limit):
-        self.player = player
-        u = lambda state: self.utility(state)
-        self.alphaBeta = AlphaBetaSearch(self.player, 3, u)
-
-    def utility(self, state):
-        winner = state.getWinner()
-        if winner is None:
-            return 0
-        elif winner == self.player:
-            return 1
-        else:
-            return -1
-
-
-class SuperMultiFlechtziUltraDNEAgentPlusPlus(GameAgent):
+class LoaDEAgent(GameAgent):
+    def pre_pre_pre_setup(self, bIgnore, cache_size):
+        self.use_extentions = bIgnore
+        self.cache_size = cache_size
+        
     def setup(self, player, game_state, turn_time_limit, setup_time_limit):
         self.turn_time_limit = turn_time_limit
         self.player = player
         u = lambda state: self.utility(state)
         self.time_manager = TimeManager(turn_time_limit)
-        self.alphaBetaAnyTime = AlphaBetaSearchAnyTime(self.player, u, self.time_manager)
+        if not ("use_extentions" in self.__dict__):
+            self.use_extentions = (True, True)
+        if not ("cache_size" in self.__dict__):
+            self.cache_size = 1000
+        self.alphaBetaAnyTime = AlphaBetaSearchAnyTime(self.player, u, self.time_manager, self.use_extentions, self.cache_size)
         
     def move(self, game_state):
         self.time_manager.start()
@@ -109,16 +88,240 @@ class SuperMultiFlechtziUltraDNEAgentPlusPlus(GameAgent):
             return INFINITY
         else:
             return -INFINITY
+
+
+#################################################################################################
+
+def create_new_file_name(pattern):
+    num = 0
+    while os.path.exists(pattern + '.' + str(num)):
+        num += 1
+    return pattern + '.' + str(num)
+
+def cache_size_dict_test():
+    log_name = create_new_file_name('.'.join(['runtime_of_dirts', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    
+    regular.pre_pre_pre_setup((False, False), 0)
+    
+    
+    for cache_size in [10, 30, 100, 300, 1000, 3000, 10000, 30000, 100000]:
+        total = 0
+        opt.pre_pre_pre_setup((False, True), cache_size)
+        state = LinesOfActionState(8, 100000)
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        agents[BLACK] = opt
+        agents[WHITE] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+            
+        d[cache_size] = total
+        
+        print 'total: ', total
+
+    msg('cache_size_dict = ' + str(d), log)  
+    print 'cache_size_dict_test done! see results in log'    
+
+
+def cache_time_dict_test():
+    log_name = create_new_file_name('.'.join(['cache_time_dict_test', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    opt.pre_pre_pre_setup((False, True), 1000)
+    regular.pre_pre_pre_setup((False, False), 0)
+    state = LinesOfActionState(8, 100000)
+    
+    for cache_time in range(1,20,2):
+        total = 0
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        agents[BLACK] = opt
+        agents[WHITE] = regular
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == BLACK:
+            total += 1
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == BLACK:
+            total += 1
+            
+        d[cache_time] = total
+        
+        print 'total: ', total
+
+    msg('cache_time_dict = ' + str(d), log)  
+    print 'cache_time_dict_test done! see results in log'    
+
+
+def cache__borad_size_dict_test():
+    log_name = create_new_file_name('.'.join(['cache__borad_size_dict_test', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    
+    regular.pre_pre_pre_setup((False, False), 0)
+    opt.pre_pre_pre_setup((False, True), 1000)
+    
+    for board_size in range(8,12):
+        total = 0
+        state = LinesOfActionState(board_size, 100000)
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        agents[BLACK] = opt
+        agents[WHITE] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+            
+        d[board_size] = total
+        
+        print 'total: ', total
+
+    msg('cache__borad_size_dict = ' + str(d), log)  
+    print 'cache__borad_size_dict_test done! see results in log'    
+
+
+def reordering_time_dict_test():
+    log_name = create_new_file_name('.'.join(['reordering_time_dict_test', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    opt.pre_pre_pre_setup((True, False), 0)
+    regular.pre_pre_pre_setup((False, False), 0)
+    state = LinesOfActionState(8, 100000)
+    
+    for cache_time in range(1,20,2):
+        total = 0
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        agents[BLACK] = opt
+        agents[WHITE] = regular
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == BLACK:
+            total += 1
+        
+        winner = GameRunner(state, agents, cache_time, 1).run()
+        if winner == BLACK:
+            total += 1
+            
+        d[cache_time] = total
+        
+        print 'total: ', total
+
+    msg('reordering_time_dict = ' + str(d), log)  
+    print 'reordering_time_dict_test done! see results in log'    
+
+
+def reordering__borad_size_dict_test():
+    log_name = create_new_file_name('.'.join(['reordering__borad_size_dict_test', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    
+    regular.pre_pre_pre_setup((False, False), 0)
+    opt.pre_pre_pre_setup((True, False), 0)
+    
+    for board_size in range(8,12):
+        total = 0
+        state = LinesOfActionState(board_size, 100000)
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == WHITE:
+            total += 1
+        
+        agents[BLACK] = opt
+        agents[WHITE] = regular
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+        
+        winner = GameRunner(state, agents, 3, 1).run()
+        if winner == BLACK:
+            total += 1
+            
+        d[board_size] = total
+        
+        print 'total: ', total
+
+    msg('reordering__borad_size_dict = ' + str(d), log)  
+    print 'reordering__borad_size_dict_test done! see results in log'    
         
         
-agents = {}
-#agents[WHITE] = DummyAgent()
-#agents[WHITE] = AlphaBetaAgent()
-agents[WHITE] = SuperMultiFlechtziUltraDNEAgentPlusPlus()
-agents[BLACK] = SuperMultiFlechtziUltraDNEAgentPlusPlus()
-
-state = LinesOfActionState(8, 100000)
-
-winner = GameRunner(state, agents, 5, 1).run()
-msg(['Winner: ', winner])
-print 'done'
+if __name__ == '__main__':
+    cache_size_dict_test()
+    print 'done'

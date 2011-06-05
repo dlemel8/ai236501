@@ -37,7 +37,7 @@ class AlphaBetaSearchAnyTime:
     search by depth alone and uses an evaluation function (utility).
     '''
     
-    def __init__(self, player, utility, time_manager):
+    def __init__(self, player, utility, time_manager, use_extentions, cache_size):
         '''
         Constructor.
         
@@ -48,13 +48,14 @@ class AlphaBetaSearchAnyTime:
         '''
         self.player = player
         self.utility = utility
-        self.cache = LRU(100000)
+        self.cache = LRU(cache_size)
         self.time_manager = time_manager
         self.cache_time_safty = 0.1
+        self.use_extentions = use_extentions
     
     def getPrioritySucc(self, state):
         items = state.getSuccessors().items()
-        if self.time_manager.time_left < 0.3:
+        if not self.use_extentions[0] or self.time_manager.time_left < 0.3:
             return items
         factor = state.getCurrentPlayer() == self.player and -1 or 1
         pq = PriorityQueue(lambda x : factor * self.utility(x[1]))
@@ -102,15 +103,15 @@ class AlphaBetaSearchAnyTime:
         value_fn = self._getValueFn(successor)
         cache_key = (successor, value_fn)
         value = None
-        dont_use_cache = self.time_manager.timeOver(self.cache_time_safty)
-        if not dont_use_cache and cache_key in self.cache:
+        use_cache = self.use_extentions[1] and not self.time_manager.timeOver(self.cache_time_safty)
+        if use_cache and cache_key in self.cache:
             cache_value, cache_depth = self.cache[cache_key]
             require_depth = self.max_depth - depth
             if require_depth <= cache_depth:
                 value = cache_value
         if not value:
             value = value_fn(successor, alpha, beta, depth)
-            if dont_use_cache and not self.time_manager.bTimeOver:
+            if use_cache and not self.time_manager.bTimeOver:
                 self.cache[cache_key] = (value, self.max_depth - depth)
         return value
     
