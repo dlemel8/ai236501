@@ -52,6 +52,8 @@ class AlphaBetaSearchAnyTime:
         self.time_manager = time_manager
         self.cache_time_safty = 0.1
         self.use_extentions = use_extentions
+        self.cache_hit = 0
+        self.cache_miss = 0
     
     def getPrioritySucc(self, state):
         items = state.getSuccessors().items()
@@ -108,9 +110,11 @@ class AlphaBetaSearchAnyTime:
             cache_value, cache_depth = self.cache[cache_key]
             require_depth = self.max_depth - depth
             if require_depth <= cache_depth:
+                self.cache_hit += 1
                 value = cache_value
         if not value:
             value = value_fn(successor, alpha, beta, depth)
+            self.cache_miss += 1
             if use_cache and not self.time_manager.bTimeOver:
                 self.cache[cache_key] = (value, self.max_depth - depth)
         return value
