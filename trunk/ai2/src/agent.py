@@ -143,6 +143,36 @@ def cache_size_dict_test():
     msg('cache_size_dict = ' + str(d), log)  
     print 'cache_size_dict_test done! see results in log'    
 
+def cache_size_hit_dict_test():
+    log_name = create_new_file_name('.'.join(['cache_size_hit_dict_test', str(date.today()), 'data']))
+    log = open(log_name, 'w')
+    d = {}
+    agents = {}
+    regular = LoaDEAgent()
+    opt = LoaDEAgent()
+    
+    regular.pre_pre_pre_setup((False, False), 0)
+    opt.pre_pre_pre_setup((False, True), 10000)
+    state = LinesOfActionState(8, 100000)
+    
+    for cache_time in range(1,10,2):
+        hit = 0
+        miss = 0
+        
+        agents[WHITE] = opt
+        agents[BLACK] = regular
+        
+        GameRunner(state, agents, cache_time, 1).run()
+        hit += opt.alphaBetaAnyTime.cache_hit
+        miss += opt.alphaBetaAnyTime.cache_miss
+                    
+        d[cache_time] = (hit, miss, hit+miss, float(hit)/(hit+miss))
+        
+        print '(hit, miss): ', (hit, miss, hit+miss, float(hit)/(hit+miss))
+
+    msg('cache_size_hit_dict = ' + str(d), log)  
+    print 'cache_size_hit_dict_test done! see results in log'    
+
 
 def cache_time_dict_test():
     log_name = create_new_file_name('.'.join(['cache_time_dict_test', str(date.today()), 'data']))
@@ -321,18 +351,23 @@ def reordering__borad_size_dict_test():
     msg('reordering__borad_size_dict = ' + str(d), log)  
     print 'reordering__borad_size_dict_test done! see results in log'    
         
-        
-if __name__ == '__main__':
+def testAll():
     cache_size_dict_test()
     cache_size_dict_test()
-    cache_time_dict_test()
-    cache_time_dict_test()
-    cache__borad_size_dict_test()
-    cache__borad_size_dict_test()
     cache_size_dict_test()
     cache_size_dict_test()
-    cache_time_dict_test()
-    cache_time_dict_test()
+    cache_size_dict_test()
+    
     cache__borad_size_dict_test()
     cache__borad_size_dict_test()
-    print 'done'
+    cache__borad_size_dict_test()
+    
+    cache_size_hit_dict_test()
+    
+    reordering__borad_size_dict_test()
+    reordering__borad_size_dict_test()
+    reordering__borad_size_dict_test()
+    
+    reordering_time_dict_test()
+    reordering_time_dict_test()
+    reordering_time_dict_test()
