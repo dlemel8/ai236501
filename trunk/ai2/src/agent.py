@@ -99,7 +99,7 @@ def create_new_file_name(pattern):
     return pattern + '.' + str(num)
 
 def cache_size_dict_test():
-    log_name = create_new_file_name('.'.join(['runtime_of_dirts', str(date.today()), 'data']))
+    log_name = create_new_file_name('.'.join(['cache_size_dict_test', str(date.today()), 'data']))
     log = open(log_name, 'w')
     d = {}
     agents = {}
@@ -117,22 +117,22 @@ def cache_size_dict_test():
         agents[WHITE] = opt
         agents[BLACK] = regular
         
-        winner = GameRunner(state, agents, 3, 1).run()
+        winner = GameRunner(state, agents, 5, 1).run()
         if winner == WHITE:
             total += 1
         
-        winner = GameRunner(state, agents, 3, 1).run()
+        winner = GameRunner(state, agents, 5, 1).run()
         if winner == WHITE:
             total += 1
         
         agents[BLACK] = opt
         agents[WHITE] = regular
         
-        winner = GameRunner(state, agents, 3, 1).run()
+        winner = GameRunner(state, agents, 5, 1).run()
         if winner == BLACK:
             total += 1
         
-        winner = GameRunner(state, agents, 3, 1).run()
+        winner = GameRunner(state, agents, 5, 1).run()
         if winner == BLACK:
             total += 1
             
@@ -155,7 +155,7 @@ def cache_time_dict_test():
     regular.pre_pre_pre_setup((False, False), 0)
     state = LinesOfActionState(8, 100000)
     
-    for cache_time in range(1,20,2):
+    for cache_time in range(1,10,2):
         total = 0
         
         agents[WHITE] = opt
@@ -244,7 +244,7 @@ def reordering_time_dict_test():
     regular.pre_pre_pre_setup((False, False), 0)
     state = LinesOfActionState(8, 100000)
     
-    for cache_time in range(1,20,2):
+    for cache_time in range(1,10,2):
         total = 0
         
         agents[WHITE] = opt
@@ -324,4 +324,15 @@ def reordering__borad_size_dict_test():
         
 if __name__ == '__main__':
     cache_size_dict_test()
+    cache_size_dict_test()
+    cache_time_dict_test()
+    cache_time_dict_test()
+    cache__borad_size_dict_test()
+    cache__borad_size_dict_test()
+    cache_size_dict_test()
+    cache_size_dict_test()
+    cache_time_dict_test()
+    cache_time_dict_test()
+    cache__borad_size_dict_test()
+    cache__borad_size_dict_test()
     print 'done'
