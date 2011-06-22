@@ -7,6 +7,10 @@ class BagOfWords(FeatureExtractor):
     Extracts a bag of words representation with TFIDF scores from raw text.
     '''
     
+    _unwanted_words = ["a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", 
+                       "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",  "there", 
+                       "these", "they", "this", "to", "was", "will", "with"]
+    
     def __init__(self, num_features):
         '''
         Constructor.
@@ -57,6 +61,38 @@ class BagOfWords(FeatureExtractor):
         for word in self.idf.keys():
             self.idf[word] = log(doc_count / self.idf[word])
     
+    def _stem_word(self, word):
+        new_word = word
+        if word.endswith('sses'):
+            new_word = word[:-4] + 'ss'
+        elif word.endswith('ies'):
+            new_word = word[:-3] + 'i'
+        elif word.endswith('eed') and len(word) > 3:
+            new_word = word[:-3] + 'ee'
+        elif word.endswith('ing'):
+            new_word = word[:-3] + ''
+        elif word.endswith('ss'):
+            new_word = word[:-2] + 'ss'
+        elif word.endswith('ed'):
+            new_word = word[:-2] + ''
+        elif word.endswith('at'):
+            new_word = word[:-2] + 'ate'
+        elif word.endswith('bl'):
+            new_word = word[:-2] + 'ble'
+        elif word.endswith('iz'):
+            new_word = word[:-2] + 'ize'
+        elif word.endswith('s'):
+            new_word = word[:-1] + ''
+        
+        
+        return new_word
+        
+    def _stemming(self, words):
+        res = []
+        for w in words:
+            res += self._stem_word(w) 
+        return list(set(res))
+    
     def _countTermFrequency(self, raw_example):
         '''
         Counts the frequency of each word in each document.
@@ -66,7 +102,9 @@ class BagOfWords(FeatureExtractor):
         '''
         example = {}
         total_count = 0
-        for word in self._getTerms(raw_example):
+        words = [w for w in self._getTerms(raw_example) if w not in self._unwanted_words]
+        words = self._stemming(words)
+        for word in words:
             if word not in example:
                 example[word] = 1.0
             else:

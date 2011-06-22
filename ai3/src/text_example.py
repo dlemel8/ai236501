@@ -24,6 +24,7 @@ def createTestDataset():
         ('I hate mud.', False),
         ('I hate jerks.', False),
         ('I hate broccoli.', False),
+        ('I hate Yossi Gil.', True),
         ('I hate being bored.', False),
         ('I dislike slugs.', False),
         ('I dislike mud.', False),
