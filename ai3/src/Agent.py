@@ -14,9 +14,10 @@ class DanielAgent(LearningAgent):
     _use_stemming = True
     _use_elminating = True
     _num_features = 10
+    _sort_threshold = 10
         
     def createFeatureExtractor(self):
-        return BagOfWords(self._num_features, self._use_stemming, self._use_elminating)
+        return BagOfWords(self._num_features, self._use_stemming, self._use_elminating, self._sort_threshold)
     
     def createClassifier(self):
         return NearestNeighbor()
@@ -25,6 +26,7 @@ class DanielAgent(LearningAgent):
         s = 'Daniel ' + str(self._num_features)
         s += self._use_stemming and 'T' or 'F'
         s += self._use_elminating and 'T' or 'F'
+        s += str(self._sort_threshold)
         return s
     
 class BdioAgent(LearningAgent):
@@ -32,9 +34,10 @@ class BdioAgent(LearningAgent):
     _use_stemming = True
     _use_elminating = True
     _num_features = 10
+    _sort_threshold = 10
         
     def createFeatureExtractor(self):
-        return BagOfWords(self._num_features, self._use_stemming, self._use_elminating)
+        return BagOfWords(self._num_features, self._use_stemming, self._use_elminating, self._sort_threshold)
     
     def createClassifier(self):
         return NearestNeighbor()
@@ -43,4 +46,5 @@ class BdioAgent(LearningAgent):
         s = 'Bdio ' + str(self._num_features)
         s += self._use_stemming and 'T' or 'F'
         s += self._use_elminating and 'T' or 'F'
+        s += str(self._sort_threshold)
         return s
