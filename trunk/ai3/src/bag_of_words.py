@@ -11,13 +11,15 @@ class BagOfWords(FeatureExtractor):
                        "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",  "there", 
                        "these", "they", "this", "to", "was", "will", "with"]
     
-    def __init__(self, num_features):
+    def __init__(self, num_features, use_stemming=True, use_elminating=True):
         '''
         Constructor.
         
         @param num_features: The number of features to extract.
         '''
         self.num_features = num_features
+        self.use_stemming = use_stemming
+        self.use_elminating = use_elminating
     
     def extract(self, raw_instance):
         '''
@@ -102,8 +104,11 @@ class BagOfWords(FeatureExtractor):
         '''
         example = {}
         total_count = 0
-        words = [w for w in self._getTerms(raw_example) if w not in self._unwanted_words]
-        words = self._stemming(words)
+        words = self._getTerms(raw_example)
+        if self.use_elminating:
+            words = [w for w in words if w not in self._unwanted_words]
+        if self.use_stemming:
+            words = self._stemming(words)
         for word in words:
             if word not in example:
                 example[word] = 1.0

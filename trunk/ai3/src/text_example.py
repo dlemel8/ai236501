@@ -3,6 +3,7 @@ from dataset_builder import DatasetBuilder
 from agent_comparator import AgentComparator
 from learning_agent import LearningAgent
 from nearest_neighbor import NearestNeighbor
+from Agent import DanielAgent, BdioAgent
 
 
 def createTestDataset():
@@ -24,7 +25,6 @@ def createTestDataset():
         ('I hate mud.', False),
         ('I hate jerks.', False),
         ('I hate broccoli.', False),
-        ('I hate Yossi Gil.', True),
         ('I hate being bored.', False),
         ('I dislike slugs.', False),
         ('I dislike mud.', False),
@@ -81,9 +81,18 @@ class Agent2(LearningAgent):
         return 'HundredWords'
 
 # Sanity Test #
-runExperiment('Sanity Test', createTestDataset(), Agent1, Agent2, 1, 30)
+#runExperiment('Sanity Test', createTestDataset(), Agent1, Agent2, 1, 30)
 
 # Real Data #
 datasets = createRealDatasets()
-for name, dataset in datasets.items():
-    runExperiment(name, dataset, Agent1, Agent2, 1, 30)
+
+DanielAgent._use_stemming = False
+DanielAgent._use_elminating = False
+for i in range(110, 200, 20):
+    DanielAgent._num_features = i
+    BdioAgent._num_features = i
+    for j in range(1, 4):
+        BdioAgent._use_stemming = (j & 1) != 0
+        BdioAgent._use_elminating = (j & 2) != 0
+        for name, dataset in datasets.items():
+            runExperiment(name, dataset, DanielAgent, BdioAgent, 1, 30)
