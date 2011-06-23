@@ -11,7 +11,7 @@ class BagOfWords(FeatureExtractor):
                        "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",  "there", 
                        "these", "they", "this", "to", "was", "will", "with"]
     
-    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold = 10):
+    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold = 0):
         '''
         Constructor.
         
@@ -55,7 +55,7 @@ class BagOfWords(FeatureExtractor):
         for raw_example in examples: 
             tf_examples += [self._countTermFrequency(raw_example)]
         self.idf = self._countInverseDocumentFrequency(tf_examples)
-        
+        print self.threshold, self.idf
         
         self.order = sorted(self.idf.items(), lambda item1, item2: -cmp(item1[1], item2[1]))
         self.order = self.order[:self.num_features]
@@ -144,14 +144,15 @@ class BagOfWords(FeatureExtractor):
                     tmp_idf[word] += 1
                     
             for item in tmp_idf:
-                if item[0] not in max_idf:
-                    max_idf[item[0]] = item[1]
+                if item not in max_idf:
+                    max_idf[item] = tmp_idf[item]
                 else:
-                    max_idf[item[0]] = max(item[1], max_idf[item[0]])
+                    max_idf[item] = max(tmp_idf[item], max_idf[item])
                     
         for item in max_idf:
-            if item[1] < self.threshold:
-                del idf[item[0]] 
+            #print item, max_idf[item], self.threshold
+            if max_idf[item] < self.threshold:
+                del idf[item] 
         
         return idf
     
