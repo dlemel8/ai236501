@@ -14,7 +14,7 @@ class DanielAgent(LearningAgent):
     _use_stemming = True
     _use_elminating = True
     _num_features = 10
-    _sort_threshold = 10
+    _sort_threshold = 0
         
     def createFeatureExtractor(self):
         return BagOfWords(self._num_features, self._use_stemming, self._use_elminating, self._sort_threshold)
@@ -34,7 +34,7 @@ class BdioAgent(LearningAgent):
     _use_stemming = True
     _use_elminating = True
     _num_features = 10
-    _sort_threshold = 10
+    _sort_threshold = 0
         
     def createFeatureExtractor(self):
         return BagOfWords(self._num_features, self._use_stemming, self._use_elminating, self._sort_threshold)

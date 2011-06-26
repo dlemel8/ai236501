@@ -93,8 +93,7 @@ DanielAgent._sort_threshold = 0
 BdioAgent._use_stemming = False
 BdioAgent._use_elminating = False
 BdioAgent._num_features = 100
-for i in range(2, 11):
-    BdioAgent._sort_threshold = i
+for i in range(10, 91, 10):
+    BdioAgent._sort_threshold = i / 100.0
     for name, dataset in datasets.items():
         runExperiment(name, dataset, DanielAgent, BdioAgent, 1, 30)
-    break

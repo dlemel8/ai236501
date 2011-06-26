@@ -11,7 +11,7 @@ class BagOfWords(FeatureExtractor):
                        "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",  "there", 
                        "these", "they", "this", "to", "was", "will", "with"]
     
-    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold = 0):
+    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold_fact = 0):
         '''
         Constructor.
         
@@ -20,7 +20,7 @@ class BagOfWords(FeatureExtractor):
         self.num_features = num_features
         self.use_stemming = use_stemming
         self.use_elminating = use_elminating
-        self.threshold = threshold
+        self.threshold_fact = threshold_fact
     
     def extract(self, raw_instance):
         '''
@@ -55,7 +55,9 @@ class BagOfWords(FeatureExtractor):
         for raw_example in examples: 
             tf_examples += [self._countTermFrequency(raw_example)]
         self.idf = self._countInverseDocumentFrequency(tf_examples)
-        print self.threshold, self.idf
+        threshold = self.threshold_fact * self.num_features
+        self.idf = dict([x for x in self.idf.items() if x[1] > threshold])
+        #print self.threshold_fact, threshold, self.idf
         
         self.order = sorted(self.idf.items(), lambda item1, item2: -cmp(item1[1], item2[1]))
         self.order = self.order[:self.num_features]
@@ -130,30 +132,13 @@ class BagOfWords(FeatureExtractor):
         @return: A dictionary of each word and the number of different documents it appears in.
         '''
         idf = {}
-        max_idf = {}
         for example in tf_examples:
-            tmp_idf = {}
             for word in example.keys():
                 if word not in idf:
                     idf[word] = 1
                 else:
                     idf[word] += 1
-                if word not in tmp_idf:
-                    tmp_idf[word] = 1
-                else:
-                    tmp_idf[word] += 1
                     
-            for item in tmp_idf:
-                if item not in max_idf:
-                    max_idf[item] = tmp_idf[item]
-                else:
-                    max_idf[item] = max(tmp_idf[item], max_idf[item])
-                    
-        for item in max_idf:
-            #print item, max_idf[item], self.threshold
-            if max_idf[item] < self.threshold:
-                del idf[item] 
-        
         return idf
     
     def _getTerms(self, text):
