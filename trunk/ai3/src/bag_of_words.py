@@ -87,15 +87,14 @@ class BagOfWords(FeatureExtractor):
         elif word.endswith('iz'):
             new_word = word[:-2] + 'ize'
         elif word.endswith('s'):
-            new_word = word[:-1] + ''
-        
+            new_word = word[:-1] + ''    
         
         return new_word
         
     def _stemming(self, words):
         res = []
         for w in words:
-            res += self._stem_word(w) 
+            res += [self._stem_word(w)]
         return list(set(res))
     
     def _countTermFrequency(self, raw_example):
@@ -123,11 +122,11 @@ class BagOfWords(FeatureExtractor):
                 example[word] = example[word] / total_count
         else:
             Nr = {}
-            for k,v in example.items():
+            for v in example.values():
                 if v in Nr:
-                    Nr[k] += 1.0
+                    Nr[v] += 1.0
                 else:
-                    Nr[k] = 1.0
+                    Nr[v] = 1.0
             
             N = sum([r*Nr[r] for r in Nr])
                     
@@ -135,7 +134,7 @@ class BagOfWords(FeatureExtractor):
                 r = example[k]
                 if r+1 not in Nr:
                     Nr[r+1] = 0     
-                example[k] = (r+1)*Nr[r+1] / (N*Nr[r])
+                example[k] = (r+1) * Nr[r+1] / (N * Nr[r])
             
         return example
     
