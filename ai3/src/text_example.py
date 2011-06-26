@@ -88,12 +88,16 @@ datasets = createRealDatasets()
 
 DanielAgent._use_stemming = False
 DanielAgent._use_elminating = False
-DanielAgent._num_features = 100
 DanielAgent._sort_threshold = 0
+DanielAgent._use_good_turing = False
+
 BdioAgent._use_stemming = False
 BdioAgent._use_elminating = False
-BdioAgent._num_features = 100
-for i in range(9, 100, 10):
-    BdioAgent._sort_threshold = (100 - i) / 100.0
+BdioAgent._sort_threshold = 0
+BdioAgent._use_good_turing = True
+
+for i in range(130, 200, 20):
+    DanielAgent._num_features = i
+    BdioAgent._num_features = i    
     for name, dataset in datasets.items():
-        runExperiment(name, dataset, DanielAgent, BdioAgent, 2, 10)
+        runExperiment(name, dataset, DanielAgent, BdioAgent, 1, 30)
