@@ -1,6 +1,5 @@
 from feature_extractor import FeatureExtractor
 import re
-import math
 from numpy.ma.core import log
 
 class BagOfWords(FeatureExtractor):
@@ -12,7 +11,7 @@ class BagOfWords(FeatureExtractor):
                        "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then",  "there", 
                        "these", "they", "this", "to", "was", "will", "with"]
     
-    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold_fact = 0):
+    def __init__(self, num_features, use_stemming=True, use_elminating=True, threshold_fact = 0, use_good_turing=False):
         '''
         Constructor.
         
@@ -22,6 +21,7 @@ class BagOfWords(FeatureExtractor):
         self.use_stemming = use_stemming
         self.use_elminating = use_elminating
         self.threshold_fact = threshold_fact
+        self.use_good_turing = use_good_turing
     
     def extract(self, raw_instance):
         '''
@@ -118,8 +118,25 @@ class BagOfWords(FeatureExtractor):
             else:
                 example[word] += 1.0
             total_count += 1
-        for word in example.keys():
-            example[word] = example[word] / total_count
+        if not self.use_good_turing:
+            for word in example.keys():
+                example[word] = example[word] / total_count
+        else:
+            Nr = {}
+            for k,v in example.items():
+                if v in Nr:
+                    Nr[k] += 1.0
+                else:
+                    Nr[k] = 1.0
+            
+            N = sum([r*Nr[r] for r in Nr])
+                    
+            for k in example.keys():
+                r = example[k]
+                if r+1 not in Nr:
+                    Nr[r+1] = 0     
+                example[k] = (r+1)*Nr[r+1] / (N*Nr[r])
+            
         return example
     
     def _countInverseDocumentFrequency(self, tf_examples):
@@ -151,7 +168,7 @@ class BagOfWords(FeatureExtractor):
         
         if self.threshold_fact:
             threshold = self.threshold_fact * len(tf_examples)
-            idf = dict([x for x in idf.items() if math.sqrt(x[1]*x[1] - idf_2[x[0]]) < threshold]) 
+            idf = dict([x for x in idf.items() if idf_2[x[0]] < threshold]) 
         
         return idf
     
