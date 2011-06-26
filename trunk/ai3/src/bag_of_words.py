@@ -1,5 +1,6 @@
 from feature_extractor import FeatureExtractor
 import re
+import math
 from numpy.ma.core import log
 
 class BagOfWords(FeatureExtractor):
@@ -55,9 +56,7 @@ class BagOfWords(FeatureExtractor):
         for raw_example in examples: 
             tf_examples += [self._countTermFrequency(raw_example)]
         self.idf = self._countInverseDocumentFrequency(tf_examples)
-        threshold = self.threshold_fact * self.num_features
-        self.idf = dict([x for x in self.idf.items() if x[1] > threshold])
-        #print self.threshold_fact, threshold, self.idf
+        #print self.threshold_fact, len(self.idf), self.idf
         
         self.order = sorted(self.idf.items(), lambda item1, item2: -cmp(item1[1], item2[1]))
         self.order = self.order[:self.num_features]
@@ -132,13 +131,28 @@ class BagOfWords(FeatureExtractor):
         @return: A dictionary of each word and the number of different documents it appears in.
         '''
         idf = {}
+        idf_2 = {}
         for example in tf_examples:
+            tmp_idf = {}
             for word in example.keys():
                 if word not in idf:
                     idf[word] = 1
                 else:
                     idf[word] += 1
                     
+                if word not in tmp_idf:
+                    tmp_idf[word] = True
+                    
+            for item in tmp_idf:
+                if item not in idf_2:
+                    idf_2[item] = 1
+                else:
+                    idf_2[item] += 1
+        
+        if self.threshold_fact:
+            threshold = self.threshold_fact * len(tf_examples)
+            idf = dict([x for x in idf.items() if math.sqrt(x[1]*x[1] - idf_2[x[0]]) < threshold]) 
+        
         return idf
     
     def _getTerms(self, text):
